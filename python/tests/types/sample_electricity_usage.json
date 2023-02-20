@@ -1,0 +1,22 @@
+{
+  "count": 12657,
+  "next": "https://api.octopus.energy/v1/electricity-meter-points/2000024502271/meters/21J0088726/consumption/?page=2&page_size=3",
+  "previous": null,
+  "results": [
+    {
+      "consumption": 0.071,
+      "interval_start": "2023-02-19T23:30:00Z",
+      "interval_end": "2023-02-20T00:00:00Z"
+    },
+    {
+      "consumption": 0.09,
+      "interval_start": "2023-02-19T23:00:00Z",
+      "interval_end": "2023-02-19T23:30:00Z"
+    },
+    {
+      "consumption": 0.072,
+      "interval_start": "2023-02-19T22:30:00Z",
+      "interval_end": "2023-02-19T23:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "count": 12649,
+  "next": "https://api.octopus.energy/v1/gas-meter-points/3938233104/meters/E6S11346872161/consumption/?page=2&page_size=3",
+  "previous": null,
+  "results": [
+    {
+      "consumption": 0,
+      "interval_start": "2023-02-19T23:30:00Z",
+      "interval_end": "2023-02-20T00:00:00Z"
+    },
+    {
+      "consumption": 0.5,
+      "interval_start": "2023-02-19T23:00:00Z",
+      "interval_end": "2023-02-19T23:30:00Z"
+    },
+    {
+      "consumption": 0.0213,
+      "interval_start": "2023-02-19T22:30:00Z",
+      "interval_end": "2023-02-19T23:00:00Z"
+    }
+  ]
+}
