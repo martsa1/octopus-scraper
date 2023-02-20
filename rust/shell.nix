@@ -2,16 +2,18 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.mkShell rec {
     buildInputs = with pkgs; [
-      llvmPackages_latest.llvm
-      llvmPackages_latest.bintools
-      zlib.out
-      rustup
-      #xorriso
       #grub2
       #qemu
+      #xorriso
+      llvmPackages_latest.bintools
       llvmPackages_latest.lld
+      llvmPackages_latest.llvm
+      openssl
+      pkg-config
       python3
       rust-analyzer
+      rustup
+      zlib.out
     ];
     #RUSTC_VERSION = pkgs.lib.readFile ./rust-toolchain;
     # https://github.com/rust-lang/rust-bindgen#environment-variables
