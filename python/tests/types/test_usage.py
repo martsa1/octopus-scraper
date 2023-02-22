@@ -49,3 +49,16 @@ def test_deserialise(
     electric_readings = RawElectricityUsage.from_raw_api_json(sample_electrical_data)
     assert len(electric_readings)
     assert all(isinstance(reading, RawElectricityUsage) for reading in electric_readings)
+
+
+# Octopus was founded in 2015, so we'll never see dates earlier than that in consumption data.
+@given(
+    st.datetimes(
+        min_value=datetime(2014, 1, 1),
+        max_value=datetime.now(),
+        timezones=st.timezones(),
+    ),
+)
+def test_coerce_to_utc(in_: datetime) -> None:
+    coerced = RawUsage._coerce_to_utc(in_)
+    assert in_ == coerced
