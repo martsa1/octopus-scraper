@@ -11,8 +11,7 @@ from _pytest.tmpdir import TempPathFactory
 from hypothesis import strategies as st
 
 from octopus_energy_scraper.data_cache.file import FileCache
-from octopus_energy_scraper.types.electricity import RawElectricityUsage
-from octopus_energy_scraper.types.gas import RawGasUsage
+from octopus_energy_scraper.types.usage import RawUsage, EnergyType
 
 # def mk_reading(consumption: float, start: dt.datetime, end: dt.datetime) -> t.Mapping[str, t.Any]:
 #     if consumption < 0:
@@ -28,7 +27,7 @@ def tmp_path_per_case(tmp_path_factory: TempPathFactory) -> Path:
 
 GasReadingsStrat = st.lists(
     st.builds(
-        RawGasUsage,
+        RawUsage,
         consumption=st.floats(min_value=0),
         interval_start=st.datetimes(
             min_value=datetime(2014, 1, 1),
@@ -48,7 +47,7 @@ GasReadingsStrat = st.lists(
 
 ElectricityReadingsStrat = st.lists(
     st.builds(
-        RawElectricityUsage,
+        RawUsage,
         consumption=st.floats(min_value=0),
         interval_start=st.datetimes(
             min_value=datetime(2014, 1, 1),
@@ -69,16 +68,17 @@ ElectricityReadingsStrat = st.lists(
 
 @h.given(electric_readings=ElectricityReadingsStrat, gas_readings=GasReadingsStrat)
 def test_flush_and_load_data_consistent(
-    electric_readings: t.MutableSequence[RawElectricityUsage],
-    gas_readings: t.MutableSequence[RawGasUsage],
+    electric_readings: t.MutableSequence[RawUsage],
+    gas_readings: t.MutableSequence[RawUsage],
     tmp_path_factory: TempPathFactory,
 ) -> None:
     base_dir = tmp_path_per_case(tmp_path_factory)
     cache_path = base_dir / "cache.json"
     LOG.info("Cache path is '%s'", str(cache_path))
     sample = FileCache(cache_path=cache_path)
-    sample.usage_data.electricity_usage = electric_readings
-    sample.usage_data.gas_usage = gas_readings
+
+    sample.add_reading(electric_readings, EnergyType.ELECTRICITY)
+    sample.add_reading(gas_readings, EnergyType.GAS)
 
     sample.flush()
 
