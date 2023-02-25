@@ -1,32 +1,26 @@
+use super::DataCache;
 use crate::types::usage::{EnergyType, MeterReading};
 use anyhow::anyhow;
 use log::{debug, error, info};
 
 use serde::Deserialize;
 
-#[derive(Deserialize, Default)]
+#[derive(Debug, Deserialize, Default)]
 struct UsageData {
     electricity_records: Vec<MeterReading>,
     gas_records: Vec<MeterReading>,
 }
 
+#[derive(Debug)]
 struct FileCache {
     cache_path: std::path::PathBuf,
     readings: UsageData,
 }
 
-trait DataCache {
-    fn load(&mut self) -> anyhow::Result<()>;
-
-    fn flush(&mut self) -> anyhow::Result<()>;
-
-    fn most_recent_reading(&self, type_: EnergyType) -> anyhow::Result<MeterReading>;
-}
-
 impl FileCache {
-    fn new(cache_path: std::path::PathBuf) -> Self {
+    fn new(cache_path: &std::path::Path) -> Self {
         FileCache {
-            cache_path: cache_path,
+            cache_path: cache_path.to_owned(),
             readings: UsageData::default(),
         }
     }
@@ -47,7 +41,9 @@ impl FileCache {
                 ))
             }
         }
-        std::fs::File::create(&self.cache_path)?;
+        if !self.cache_path.exists() {
+            std::fs::File::create(&self.cache_path)?;
+        }
 
         Ok(())
     }
@@ -112,14 +108,14 @@ mod test {
     }
 
     #[test]
-    fn load_data_cache_fails_for_missing_path() -> anyhow::Result<()> {
+    fn load_data_cache_creates_new_file() -> anyhow::Result<()> {
         with_logs();
 
-        let temp_path = TempDir::new();
+        let temp_path = TempDir::new(true);
         let cache_path = temp_path.temp_path.join("file_cache");
         info!("Using '{}' as temp path.", cache_path.display());
 
-        let mut file_cache = FileCache::new(cache_path);
+        let mut file_cache = FileCache::new(&cache_path);
         let load_result = file_cache.load();
         match load_result {
             Err(e) => {
@@ -129,8 +125,61 @@ mod test {
             _ => {}
         }
         assert!(!load_result.is_err());
-        //assert!(load_result == ());
+        assert!(&cache_path.exists());
 
+        Ok(())
+    }
+
+    #[test]
+    fn load_sample_data_works_correctly() -> anyhow::Result<()> {
+        with_logs();
+
+        let temp_path = TempDir::new(true);
+        let cache_path = temp_path.temp_path.join("file_cache");
+        info!("Using '{}' as temp path.", cache_path.display());
+
+        let sample_str = r#"
+            {
+                "electricity_records": [
+                    {
+                        "consumption": 1.0,
+                        "interval_start": "2022-06-01T08:38:05+01:00",
+                        "interval_end": "2022-06-01T09:08:05+01:00"
+                    }
+                ],
+                "gas_records": [
+                    {
+                        "consumption": 1.0,
+                        "interval_start": "2022-06-01T08:38:05+01:00",
+                        "interval_end": "2022-06-01T09:08:05+01:00"
+                    }
+                ]
+            }
+        "#;
+        let write_res = std::fs::write(&cache_path, sample_str);
+        assert!(!write_res.is_err());
+        debug!("Wrote sameple data to cache file: {}", cache_path.display());
+
+        assert!(cache_path.exists());
+        let cache_meta = std::fs::metadata(&cache_path)?;
+        debug!(
+            "metadata.len for '{}': {}",
+            cache_path.display(),
+            cache_meta.len()
+        );
+        assert!(cache_meta.len() as u64 == sample_str.len() as u64);
+
+        let mut file_cache = FileCache::new(&cache_path);
+        let load_res = file_cache.load();
+        assert!(!load_res.is_err());
+        debug!("Loaded file cache data from cache path");
+
+        debug!("file_cache: {:#?}", file_cache);
+        assert!(file_cache.readings.electricity_records.len() == 1);
+        assert!(file_cache.readings.gas_records.len() == 1);
+
+        assert!(file_cache.readings.electricity_records[0].consumption == 1.0);
+        assert!(file_cache.readings.gas_records[0].consumption == 1.0);
         Ok(())
     }
 }

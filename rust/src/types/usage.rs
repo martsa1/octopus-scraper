@@ -7,11 +7,11 @@ pub enum EnergyType {
 }
 
 /// Raw Meter reading type as used by octopus API.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct MeterReading {
-    consumption: f32,
-    interval_end: chrono::DateTime<chrono::Utc>,
-    interval_start: chrono::DateTime<chrono::Utc>,
+    pub consumption: f32,
+    pub interval_end: chrono::DateTime<chrono::Utc>,
+    pub interval_start: chrono::DateTime<chrono::Utc>,
 }
 
 #[derive(Deserialize)]
