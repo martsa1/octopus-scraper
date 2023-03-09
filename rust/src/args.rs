@@ -8,4 +8,16 @@ pub struct Cli {
 
     /// API Secret. Retrieve from "https://octopus.energy/dashboard/developer/"
     pub api_key: String,
+
+    /// Electricity meter MPAN
+    pub electricity_id: String,
+
+    /// Electricity meter serial number
+    pub electricity_serial: String,
+
+    /// Gas meter MPRN
+    pub gas_id: String,
+
+    /// Gas meter serial number
+    pub gas_serial: String,
 }

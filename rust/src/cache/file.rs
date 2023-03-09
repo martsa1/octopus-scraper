@@ -99,13 +99,7 @@ impl DataCache for FileCache {
 mod test {
     use super::*;
     use crate::types::temp_dir::TempDir;
-
-    fn with_logs() {
-        let _ = env_logger::builder()
-            .is_test(true)
-            .filter_level(log::LevelFilter::Debug)
-            .try_init();
-    }
+    use crate::types::util::with_logs;
 
     #[test]
     fn load_data_cache_creates_new_file() -> anyhow::Result<()> {
