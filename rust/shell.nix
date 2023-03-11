@@ -13,6 +13,7 @@
       python3
       rust-analyzer
       rustup
+      sccache
       zlib.out
     ];
     #RUSTC_VERSION = pkgs.lib.readFile ./rust-toolchain;
